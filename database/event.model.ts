@@ -121,6 +121,11 @@ EventSchema.pre('save', function (next: (err?: CallbackError) => void) {
 
   // Normalize date to ISO format if modified
   if (this.isModified('date')) {
+    // Validate ISO format directly (YYYY-MM-DD)
+    const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!isoDateRegex.test(this.date)) {
+      return next(new Error('Date must be in YYYY-MM-DD format'));
+    }
     try {
       const parsedDate = new Date(this.date);
       if (isNaN(parsedDate.getTime())) {
