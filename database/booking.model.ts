@@ -35,7 +35,7 @@ const BookingSchema = new Schema<IBooking>(
   }
 );
 
-// Pre-save hook: Verify that the referenced event exists
+// Pre-save hook: Verify that the referenced events exists
 BookingSchema.pre('save', async function (next: (err?: CallbackError) => void) {
   // Only validate eventId if it's modified or this is a new document
   if (this.isModified('eventId')) {
@@ -43,17 +43,17 @@ BookingSchema.pre('save', async function (next: (err?: CallbackError) => void) {
       // Dynamically import Event model to avoid circular dependency
       const Event = models.Event || (await import('./event.model')).default;
       
-      // Check if the event exists
+      // Check if the events exists
       const eventExists = await Event.exists({ _id: this.eventId });
       
       if (!eventExists) {
-        return next(new Error('Referenced event does not exist'));
+        return next(new Error('Referenced events does not exist'));
       }
     } catch (error) {
       return next(
         error instanceof Error
           ? error
-          : new Error('Failed to validate event reference')
+          : new Error('Failed to validate events reference')
       );
     }
   }
