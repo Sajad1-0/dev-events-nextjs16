@@ -13,7 +13,7 @@ declare global {
 }
 
 // Get MongoDB URI from environment variables
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URL;
 
 // Validate that the MongoDB URI exists
 if (!MONGODB_URI) {
