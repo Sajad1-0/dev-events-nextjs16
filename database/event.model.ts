@@ -2,6 +2,7 @@ import { CallbackError, Document, model, models, Schema } from 'mongoose';
 
 // TypeScript interface for Event document
 export interface IEvent extends Document {
+  id: string;
   title: string;
   slug: string;
   description: string;
@@ -103,75 +104,76 @@ const EventSchema = new Schema<IEvent>(
   },
   {
     timestamps: true, // Automatically manage createdAt and updatedAt
-  }
+  },
 );
 
 // Pre-save hook: Generate slug from title and normalize date/time
-EventSchema.pre('save', async function(this: IEvent) {
-    const event = this;
+EventSchema.pre('save', async function (this: IEvent) {
+  const event = this;
 
-    // Generate slug only if title is modified or this is a new document
-    if (event.isModified('title') || event.isNew) {
-        event.slug = generateSlug(event.title);
-    }
+  // Generate slug only if title is modified or this is a new document
+  if (event.isModified('title') || event.isNew) {
+    event.slug = generateSlug(event.title);
+  }
 
-    if (event.isModified('date')) {
-        event.date = normalizeDate(event.date)
-    }
+  if (event.isModified('date')) {
+    event.date = normalizeDate(event.date);
+  }
 
-    if (event.isModified('time')) {
-        event.time = normalizeTime(event.time)
-    }
+  if (event.isModified('time')) {
+    event.time = normalizeTime(event.time);
+  }
 });
 
 // Helper function to normalize date to ISO format
 function generateSlug(title: string): string {
-    return title.toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, '') // Remove special characters
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
 }
 
 // Helper function to normalize date to ISO format
 function normalizeDate(dateString: string): string {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-        throw new Error("Invalid date format")
-    }
-    return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    throw new Error('Invalid date format');
+  }
+  return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
 }
 
 // helper function to normalize time format
 function normalizeTime(timeString: string): string {
-// handle various time formats and convert to HH:MM (24-hour format
-const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-const match = timeString.trim().match(timeRegex)
+  // handle various time formats and convert to HH:MM (24-hour format
+  const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  const match = timeString.trim().match(timeRegex);
 
-    if (!match) {
-        throw new Error('Invalid format. Use HH:MM or HH:MM AM/PM')
-    }
+  if (!match) {
+    throw new Error('Invalid format. Use HH:MM or HH:MM AM/PM');
+  }
 
-    let hours = parseInt(match[1]);
-    const minutes = match[2];
-    const period = match[4]?.toUpperCase();
+  let hours = parseInt(match[1]);
+  const minutes = match[2];
+  const period = match[4]?.toUpperCase();
 
-    if (period) {
-        // Convert 12-hour to 24-hour format
-        if (period === 'PM' && hours !== 12) hours += 12;
-        if (period === 'AM' && hours === 12) hours = 0;
-    }
+  if (period) {
+    // Convert 12-hour to 24-hour format
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+  }
 
-    if (hours < 0 || hours > 23 || parseInt(minutes) < 0 || parseInt(minutes) > 59) {
-        throw new Error('Invalid time values');
-    }
+  if (hours < 0 || hours > 23 || parseInt(minutes) < 0 || parseInt(minutes) > 59) {
+    throw new Error('Invalid time values');
+  }
 
-    return `${hours.toString().padStart(2, '0')}:${minutes}`;
+  return `${hours.toString().padStart(2, '0')}:${minutes}`;
 }
 
 // Add index on slug for faster queries
-EventSchema.index({ slug: 1 }, {unique: true});
+EventSchema.index({ slug: 1 }, { unique: true });
 
 // Export model, using existing model if available (prevents recompilation in development)
 const Event = models.Event || model<IEvent>('Event', EventSchema);

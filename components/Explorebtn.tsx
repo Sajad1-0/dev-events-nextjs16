@@ -9,20 +9,10 @@ const Explorebtn = () => {
   };
 
   return (
-    <button
-      type="button"
-      id="explore-btn"
-      className="mx-auto mt-7"
-      onClick={handleClick}
-    >
+    <button type="button" id="explore-btn" className="mx-auto mt-7" onClick={handleClick}>
       <a href="#events">
         Explore Event
-        <Image
-          src="/icons/arrow-down.svg"
-          alt="arrow-down"
-          width={24}
-          height={24}
-        />
+        <Image src="/icons/arrow-down.svg" alt="arrow-down" width={24} height={24} />
       </a>
     </button>
   );
